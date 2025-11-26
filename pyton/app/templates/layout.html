@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title if title else "APPTON" }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='layout.css') }}">
+</head>
+<body>
+
+    <!-- TOP HEADER -->
+    <header class="topbar">
+        <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+        <h1><a href="{{ url_for('main.home') }}">APPTON</a></h1>
+    </header>
+
+
+    <!-- PAGE WRAPPER (SIDEBAR + CONTENT) -->
+    <div class="page-wrapper sidebar-open">
+
+        <!-- SIDEBAR -->
+        <nav class="sidebar">
+            <h2>Funktionen</h2>
+
+            <h3>Trackton</h3>
+            <ul>
+                <li><a href="{{ url_for('weight.weight_page') }}">Gewichtstracker</a></li>
+                <li>Ernährungstracker (coming soon)</li>
+                <li>Trainingstracker (coming soon)</li>
+            </ul>
+
+            <h3>Lifeton</h3>
+            <ul>
+                <li>Notizen (coming soon)</li>
+                <li>Google Calendar (coming soon)</li>
+            </ul>
+        </nav>
+
+        <!-- MAIN CONTENT -->
+        <main class="content">
+            {% block content %}{% endblock %}
+        </main>
+
+    </div>
+
+
+    <!-- SIDEBAR SCRIPT -->
+    <script>
+        function toggleSidebar() {
+            const wrapper = document.querySelector('.page-wrapper');
+            wrapper.classList.toggle('sidebar-open');
+            wrapper.classList.toggle('sidebar-closed');
+        }
+    </script>
+
+</body>
+</html>

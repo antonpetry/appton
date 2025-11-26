@@ -1,0 +1,105 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h2>Gewichtstracker</h2>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Diagramm -->
+<div class="card">
+    <h3>Gewichtsverlauf</h3>
+
+    <canvas id="weightChart" style="width:100%; max-width:700px; height: 50%; margin-bottom: 20px;"></canvas>
+
+    <script>
+        const labels = {{ dates | tojson }};
+        const data = {{ weights | tojson }};
+
+        const ctx = document.getElementById('weightChart').getContext('2d');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Gewicht (kg)',
+                    data: data,
+                    borderWidth: 3,
+                    tension: 0.3,
+                    pointRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Datum'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'kg'
+                        },
+                        beginAtZero: false
+                    }
+                }
+            }
+        });
+    </script>
+</div>
+
+
+<!-- Formular zum Hinzufügen eines Eintrags -->
+<div class="card">
+    <h3>Neuen Eintrag hinzufügen</h3>
+
+    <form action="{{ url_for('weight.add_weight') }}" method="post" class="form">
+        <label for="date">Datum</label>
+        <input type="date" id="date" name="date" required>
+
+        <label for="weight">Gewicht (kg)</label>
+        <input type="number" step="0.1" id="weight" name="weight" required>
+
+        <button type="submit">Speichern</button>
+    </form>
+</div>
+
+<!-- Tabellenansicht vorhandener Einträge -->
+<div class="card">
+    <h3>Gespeicherte Einträge</h3>
+
+    {% if entries %}
+        <table class="weight-table">
+            <thead>
+                <tr>
+                    <th>Datum</th>
+                    <th>Gewicht</th>
+                    <th>Aktionen</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for e in entries %}
+                <tr>
+                    <td>{{ e.date.strftime("%d.%m.%Y") }}</td>
+                    <td>{{ e.weight }} kg</td>
+                    <td>
+                        <a class="edit-btn" href="{{ url_for('weight.edit_weight', entry_id=e.id) }}">Bearbeiten</a>
+                        <form action="{{ url_for('weight.delete_weight', entry_id=e.id) }}" method="POST" style="display:inline;">
+                            <button type="submit" class="delete-btn">Löschen</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Noch keine Einträge vorhanden.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

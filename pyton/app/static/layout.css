@@ -1,0 +1,134 @@
+/* GLOBAL RESET */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
+}
+
+/* HEADER BAR */
+.topbar {
+    width: 100%;
+    background: darkblue;
+    color: white;
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.topbar h1 {
+    margin: 0;
+}
+
+.topbar h1 a {
+    color: white;
+    text-decoration: none;
+}
+
+/* SIDEBAR + CONTENT WRAPPER */
+.page-wrapper {
+    display: flex;
+    flex-direction: row;
+    height: calc(100vh - 70px); /* full height minus header */
+}
+
+/* SIDEBAR */
+.sidebar {
+    width: 20%;
+    min-width: 200px;
+    background: white;
+    padding: 20px;
+    border-right: 1px solid #ddd;
+    box-shadow: 2px 0 6px rgba(0,0,0,0.05);
+}
+
+.sidebar h2, .sidebar h3 {
+    margin-top: 0;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.sidebar li {
+    margin-bottom: 8px;
+}
+
+.sidebar a {
+    text-decoration: none;
+    color: #333;
+}
+
+.sidebar a:hover {
+    color: #3f51b5;
+}
+
+.sidebar-toggle {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    font-size: 22px;
+    background: #1f2937;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 10px;
+    cursor: pointer;
+    z-index: 1000;
+}
+.sidebar-toggle:hover {
+    background: #374151;
+}
+
+.page-wrapper {
+    display: flex;
+    transition: all 0.25s ease;
+}
+
+/* SIDEBAR STATE: OPEN */
+.page-wrapper.sidebar-open .sidebar {
+    width: 260px;
+    padding: 2rem 1.5rem;
+    opacity: 1;
+    visibility: visible;
+}
+
+/* SIDEBAR STATE: CLOSED */
+.page-wrapper.sidebar-closed .sidebar {
+    width: 0;
+    padding: 0;
+    opacity: 0;
+    visibility: hidden;
+    overflow: hidden;
+}
+
+/* Smooth animation */
+.page-wrapper .sidebar,
+.page-wrapper .content {
+    transition: all 0.25s ease;
+}
+
+
+/* MAIN CONTENT */
+.content {
+    width: 80%;
+    padding: 30px;
+    overflow-y: auto;
+}
+
+/* MOBILE BREAKPOINT */
+@media (max-width: 800px) {
+    .page-wrapper {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .content {
+        width: 100%;
+    }
+}
