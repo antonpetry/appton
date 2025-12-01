@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h2>Training bearbeiten</h2>
+
+<form method="POST" action="{{ url_for('training.update_training', tid=t.id) }}" class="training-edit-form">
+
+    <label>Datum:</label>
+    <input type="date" name="date" value="{{ t.date }}" disabled>
+
+    <label>Training:</label>
+    <input type="text" name="training_name" value="{{ t.training_name }}" required>
+
+    <label>Distanz ({{ t.detect_unit() }}):</label>
+    <input type="number" step="0.1" name="distance" value="{{ t.distance }}">
+
+    <label>Dauer (hh:mm:ss):</label>
+    <input type="text" name="duration" value="{{ t.duration }}">
+
+    <label>Anmerkungen:</label>
+    <input type="text" name="notes" value="{{ t.notes }}">
+
+    <button type="submit">Speichern</button>
+    <a href="{{ url_for('training.training_home', day=t.date) }}" class="button-grey">Abbrechen</a>
+</form>
+
+{% endblock %}

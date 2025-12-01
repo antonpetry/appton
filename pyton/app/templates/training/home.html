@@ -1,0 +1,139 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h2>Training</h2>
+<!-- DIAGRAMM -->
+<h3>Schritte & Training Übersicht</h3>
+<canvas id="trainingChart" style="max-height: 300px;"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+fetch("{{ url_for('training.training_chart_data') }}")
+    .then(res => res.json())
+    .then(data => {
+        const ctx = document.getElementById('trainingChart');
+
+        new Chart(ctx, {
+            type: "bar",
+            data: {
+                labels: data.steps.map(e => e.date),
+                datasets: [
+                    {
+                        label: "Schritte",
+                        data: data.steps.map(e => e.steps),
+                        yAxisID: "y",
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true },
+                }
+            }
+        });
+    });
+</script>
+
+<!-- -------------------------------- -->
+<!-- STEPS (oben) -->
+<!-- -------------------------------- -->
+<div class="training-steps-box">
+    <h3>Schritte – {{ current_day.strftime("%d.%m.%Y") }}</h3>
+
+    <form method="POST" action="{{ url_for('training.save_steps') }}">
+        <input type="date" name="date" value="{{ current_day }}" required>
+        <input type="number" name="steps" value="{{ steps_entry.steps if steps_entry else 0 }}" required>
+        <button type="submit">Speichern</button>
+    </form>
+    <h3>Schritte bearbeiten</h3>
+    <table class="training-table">
+        <tr>
+            <th>Datum</th>
+            <th>Schritte</th>
+            <th></th>
+            <th></th>
+        </tr>
+
+        {% for s in all_steps %}
+        <tr>
+            <form method="POST" action="{{ url_for('training.save_steps') }}">
+                <td>
+                    <input type="date" name="date" value="{{ s.date }}" required>
+                </td>
+                <td>
+                    <input type="number" name="steps" value="{{ s.steps }}" required>
+                </td>
+                <td>
+                    <button type="submit">💾</button>
+                </td>
+            </form>
+
+            <td>
+                <form method="POST" action="{{ url_for('training.delete_steps', sid=s.id) }}" style="display:inline">
+                    <button onclick="return confirm('Eintrag wirklich löschen?')" style="color:red;">🗑️</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+<!-- -------------------------------- -->
+<!-- TRAINING HINZUFÜGEN -->
+<!-- -------------------------------- -->
+<h3>Training hinzufügen</h3>
+<form method="POST" action="{{ url_for('training.add_training') }}" class="training-add-form">
+    <input type="date" name="date" value="{{ current_day }}" required>
+    <input type="text" name="training_name" placeholder="Training (z.B. Laufen)" required>
+    <input type="number" step="0.1" name="distance" placeholder="Distanz">
+    <input type="text" name="duration" placeholder="Dauer (hh:mm:ss)">
+    <input type="text" name="notes" placeholder="Anmerkung">
+    <button type="submit">Hinzufügen</button>
+</form>
+
+<hr>
+
+<!-- -------------------------------- -->
+<!-- TRAINING PRO MONAT -->
+<!-- -------------------------------- -->
+<h2>Trainingsübersicht</h2>
+
+{% for month, entries in month_groups.items() %}
+    <h3>{{ month }}</h3>
+
+    <table class="training-table">
+        <tr>
+            <th>Datum</th>
+            <th>Training</th>
+            <th>Distanz</th>
+            <th>Dauer</th>
+            <th>Notiz</th>
+            <th></th>
+        </tr>
+        {% for t in entries %}
+        <tr>
+            <td>{{ t.date.strftime('%d.%m.%Y') }}</td>
+            <td>{{ t.training_name }}</td>
+            <td>
+                {% if t.distance %}
+                    {{ t.distance }} {{ t.detect_unit() }}
+                {% endif %}
+            </td>
+            <td>{{ t.duration }}</td>
+            <td>{{ t.notes }}</td>
+            <td>
+                <a href="{{ url_for('training.edit_training', tid=t.id) }}">✏️</a>
+                <form method="POST" action="{{ url_for('training.delete_training', tid=t.id) }}" style="display:inline">
+                    <button onclick="return confirm('Löschen?')" style="color:red;">🗑️</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+{% endfor %}
+
+{% endblock %}

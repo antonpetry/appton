@@ -16,9 +16,13 @@ def create_app():
 
     from .routes.main import main_bp
     from .routes.weight import weight_bp
+    from .routes.nutrition import nutrition_bp
+    from .routes.training import training_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(weight_bp, url_prefix="/weight")
+    app.register_blueprint(nutrition_bp)
+    app.register_blueprint(training_bp)
 
     with app.app_context():
         from .models.weight import WeightEntry

@@ -11,7 +11,7 @@ weight_bp = Blueprint("weight", __name__, url_prefix="/weight")
 # Show all weight entries
 # ------------------------------
 @weight_bp.route("/")
-def weight_page():
+def weight_home():
     entries = WeightEntry.query.order_by(WeightEntry.date.desc()).all()
     chart_entries = WeightEntry.query.order_by(WeightEntry.date.asc()).all()
 

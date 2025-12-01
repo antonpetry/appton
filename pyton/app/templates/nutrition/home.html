@@ -1,0 +1,244 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h2>Ernährungstracker</h2>
+
+<!-- Toggle Button + Chart -->
+<div class="card">
+    <h3>Kalorienübersicht</h3>
+
+    <button id="toggleChart" class="toggle-btn">Wechsel: Wochen / Tage</button>
+
+    <div class="nutrition-chart-container">
+        <canvas id="mainChart"></canvas>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const weeklyLabels = {{ weeks | tojson }};
+    const weeklyAvg = {{ avg_cals | tojson }};
+
+    const dailyLabels = {{ daily_labels | tojson }};
+    const dailyValues = {{ daily_values | tojson }};
+
+    let currentMode = "weekly";
+
+    const chart = new Chart(document.getElementById("mainChart"), {
+        type: "bar",
+        data: {
+            labels: weeklyLabels,
+            datasets: [{
+                label: "Ø Kalorien pro Woche",
+                data: weeklyAvg
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+        }
+    });
+
+    document.getElementById("toggleChart").addEventListener("click", () => {
+        if (currentMode === "weekly") {
+            // → Umschalten auf TAGE
+            chart.data.labels = dailyLabels;
+            chart.data.datasets[0].data = dailyValues;
+            chart.data.datasets[0].label = "Kalorien pro Tag";
+            currentMode = "daily";
+        } else {
+            // → Umschalten auf WOCHEN
+            chart.data.labels = weeklyLabels;
+            chart.data.datasets[0].data = weeklyAvg;
+            chart.data.datasets[0].label = "Ø Kalorien pro Woche";
+            currentMode = "weekly";
+        }
+
+        chart.update();
+    });
+</script>
+
+
+<!-- Daily Overview -->
+<div class="card">
+    <h3>Tagesübersicht</h3>
+
+    <form method="get" action="{{ url_for('nutrition.nutrition_home') }}">
+        <label>Datum wählen:</label>
+        <input type="date" name="day" value="{{ current_day }}">
+        <button type="submit">Anzeigen</button>
+    </form>
+
+    {% if meals %}
+        <table class="weight-table">
+            <thead>
+                <tr>
+                    <th>Mahlzeit</th>
+                    <th>Kalorien</th>
+                    <th>Kohlenhydrate</th>
+                    <th>Protein</th>
+                    <th>Fett</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in meals %}
+                <tr>
+                    <td>{{ m.meal_name }}</td>
+                    <td>{{ m.calories }} kcal</td>
+                    <td>{{ m.carbs }} g</td>
+                    <td>{{ m.protein }} g</td>
+                    <td>{{ m.fat }} g</td>
+                    <td>
+                        <a class="edit-btn" href="{{ url_for('nutrition.edit_meal', meal_id=m.id) }}">Bearbeiten</a>
+
+                        <form action="{{ url_for('nutrition.delete_meal', meal_id=m.id) }}" method="POST" style="display:inline;">
+                            <button class="delete-btn" type="submit">Löschen</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Keine Einträge für diesen Tag.</p>
+    {% endif %}
+</div>
+
+<!-- Add Meal -->
+<div class="card">
+    <h3>Mahlzeit hinzufügen</h3>
+
+    <form action="{{ url_for('nutrition.add_meal') }}" method="post">
+
+        <input type="hidden" name="date" value="{{ current_day }}">
+
+        <label>Mahlzeit</label>
+        <input type="text" name="meal_name" required>
+
+        <label>Kalorien</label>
+        <input type="number" name="calories" required>
+
+        <label>Kohlenhydrate (g)</label>
+        <input type="number" step="0.1" name="carbs" required>
+
+        <label>Protein (g)</label>
+        <input type="number" step="0.1" name="protein" required>
+
+        <label>Fett (g)</label>
+        <input type="number" step="0.1" name="fat" required>
+
+        <button type="submit">Speichern</button>
+    </form>
+</div>
+
+<style>
+
+/* Karten */
+.card {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    margin-bottom: 25px;
+}
+
+/* Tabellen */
+.weight-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.weight-table th,
+.weight-table td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.weight-table th {
+    background: #f5f5f5;
+    text-align: left;
+}
+
+/* Formular */
+form label {
+    display: block;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+form input[type="text"],
+form input[type="number"],
+form input[type="date"] {
+    width: 100%;
+    padding: 8px;
+    margin-top: 3px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+form button {
+    margin-top: 15px;
+    padding: 10px 15px;
+    background: #0077ff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+form button:hover {
+    background: #005fcc;
+}
+
+.chart-container {
+    height: 250px;
+    width: 100%;
+    position: relative;
+    max-width: 100%;
+}
+
+.edit-btn {
+    background: #1976d2;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 6px;
+    text-decoration: none;
+}
+
+.edit-btn:hover {
+    background: #0d47a1;
+}
+
+.delete-btn {
+    background: #c62828;
+    color: white;
+    padding: 6px 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.delete-btn:hover {
+    background: #b71c1c;
+}
+
+.toggle-btn {
+    margin-bottom: 10px;
+    padding: 8px 14px;
+    background: #444;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.toggle-btn:hover {
+    background: #222;
+}
+
+</style>
+
+{% endblock %}

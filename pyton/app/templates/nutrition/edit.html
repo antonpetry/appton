@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h2>Mahlzeit bearbeiten</h2>
+
+<div class="card">
+    <form action="{{ url_for('nutrition.update_meal', meal_id=meal.id) }}" method="POST">
+
+        <label>Mahlzeit</label>
+        <input type="text" name="meal_name" value="{{ meal.meal_name }}" required>
+
+        <label>Kalorien</label>
+        <input type="number" name="calories" value="{{ meal.calories }}" required>
+
+        <label>Kohlenhydrate (g)</label>
+        <input type="number" step="0.1" name="carbs" value="{{ meal.carbs }}" required>
+
+        <label>Protein (g)</label>
+        <input type="number" step="0.1" name="protein" value="{{ meal.protein }}" required>
+
+        <label>Fett (g)</label>
+        <input type="number" step="0.1" name="fat" value="{{ meal.fat }}" required>
+
+        <button type="submit">Speichern</button>
+    </form>
+</div>
+
+{% endblock %}
